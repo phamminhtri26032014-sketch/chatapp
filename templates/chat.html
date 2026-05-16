@@ -3,199 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat Pro Ultra</title>
+<title>Chat App</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: "Segoe UI", sans-serif;
-}
-
 body{
-    height:100vh;
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
     display:flex;
     justify-content:center;
     align-items:center;
-    background: radial-gradient(circle at top,#1e293b,#0f172a);
+    height:100vh;
 }
 
-/* APP */
 .app{
-    width:1000px;
-    height:650px;
+    width:900px;
+    height:600px;
     display:flex;
-    border-radius:18px;
+    background:#111827;
+    border-radius:15px;
     overflow:hidden;
-    box-shadow:0 0 40px rgba(0,0,0,0.6);
-    background:#0b1220;
 }
 
-/* SIDEBAR */
 .sidebar{
-    width:250px;
-    background:#0f172a;
+    width:220px;
+    background:#0b1220;
     color:white;
     padding:15px;
-    border-right:1px solid #1f2937;
 }
 
-.sidebar h2{
-    font-size:15px;
-    color:#38bdf8;
-    margin-bottom:10px;
-}
-
-.user{
-    padding:8px;
-    margin:5px 0;
-    background:#111827;
-    border-radius:8px;
-    font-size:13px;
-    transition:0.2s;
-}
-
-.user:hover{
-    background:#1f2937;
-}
-
-/* CHAT AREA */
 .chat{
     flex:1;
     display:flex;
     flex-direction:column;
 }
 
-/* HEADER */
 .header{
-    padding:14px;
-    background:#111827;
+    padding:12px;
+    background:#1f2937;
     color:white;
-    font-weight:bold;
-    display:flex;
-    justify-content:space-between;
 }
 
-/* MESSAGES */
 .messages{
     flex:1;
     padding:15px;
     overflow-y:auto;
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:8px;
 }
 
-/* MESSAGE BUBBLE */
 .msg{
+    padding:10px;
+    border-radius:10px;
     max-width:70%;
-    padding:10px 14px;
-    border-radius:16px;
-    font-size:14px;
-    animation: pop 0.2s ease;
-    word-wrap:break-word;
-}
-
-@keyframes pop{
-    from{transform:scale(0.8);opacity:0}
-    to{transform:scale(1);opacity:1}
 }
 
 .me{
-    background:linear-gradient(135deg,#3b82f6,#2563eb);
+    background:#3b82f6;
     color:white;
     align-self:flex-end;
-    border-bottom-right-radius:4px;
 }
 
 .other{
-    background:#1f2937;
+    background:#374151;
     color:white;
     align-self:flex-start;
-    border-bottom-left-radius:4px;
 }
 
-/* INPUT */
 .input{
     display:flex;
-    padding:12px;
-    background:#111827;
-    gap:10px;
+    padding:10px;
+    background:#1f2937;
 }
 
 input{
     flex:1;
     padding:10px;
     border:none;
-    border-radius:10px;
+    border-radius:8px;
     outline:none;
-    background:#1f2937;
-    color:white;
 }
 
 button{
-    padding:10px 16px;
+    margin-left:8px;
+    padding:10px;
     border:none;
-    border-radius:10px;
     background:#22c55e;
     color:white;
-    cursor:pointer;
-    transition:0.2s;
+    border-radius:8px;
 }
 
-button:hover{
-    background:#16a34a;
-}
-
-/* LOGIN */
 .login{
     position:absolute;
-    background:#0b1220;
-    padding:25px;
-    border-radius:15px;
+    background:#111827;
+    padding:20px;
+    border-radius:10px;
     color:white;
-    box-shadow:0 0 25px rgba(0,0,0,0.5);
-    text-align:center;
-}
-
-.login input{
-    margin-top:10px;
-    width:200px;
-    padding:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="login" id="login">
-    <h3>💬 Chat Ultra Pro</h3>
-    <input id="name" placeholder="Nhập tên...">
-    <br><br>
-    <button onclick="join()">Vào phòng</button>
+<div class="login" id="loginBox">
+    <h3>Vào chat</h3>
+    <input id="name" placeholder="Tên bạn">
+    <button onclick="join()">OK</button>
 </div>
 
-<div class="app" id="app" style="display:none;">
+<div class="app" id="app" style="display:none">
 
     <div class="sidebar">
-        <h2>🟢 Online</h2>
+        <h3>🟢 Online</h3>
         <div id="users"></div>
     </div>
 
     <div class="chat">
 
-        <div class="header">
-            <div>💬 Room Chat</div>
-            <div id="count">0 users</div>
-        </div>
+        <div class="header">💬 Chat Room</div>
 
         <div class="messages" id="messages"></div>
 
         <div class="input">
-            <input id="msg" placeholder="Nhập tin nhắn...">
+            <input id="msg" placeholder="Nhập tin nhắn">
             <button onclick="send()">Gửi</button>
         </div>
 
@@ -213,13 +146,13 @@ function join(){
 
     socket.emit("join", {name: myName});
 
-    document.getElementById("login").style.display="none";
+    document.getElementById("loginBox").style.display="none";
     document.getElementById("app").style.display="flex";
 }
 
 function send(){
     const msg = document.getElementById("msg");
-    if(!msg.value.trim()) return;
+    if(!msg.value) return;
 
     socket.emit("message_from_client", {
         name: myName,
@@ -233,7 +166,7 @@ socket.on("message_from_server", (data)=>{
     const box = document.getElementById("messages");
 
     const div = document.createElement("div");
-    div.classList.add("msg");
+    div.className="msg";
 
     if(data.name === myName){
         div.classList.add("me");
@@ -249,20 +182,14 @@ socket.on("message_from_server", (data)=>{
 
 socket.on("online_users", (users)=>{
     const box = document.getElementById("users");
-    const count = document.getElementById("count");
-
     box.innerHTML="";
-
     users.forEach(u=>{
         const d=document.createElement("div");
-        d.className="user";
         d.innerText="👤 "+u;
         box.appendChild(d);
     });
-
-    count.innerText = users.length + " users";
 });
 </script>
-<h1 style="color:red">UI VERSION 2 TEST</h1>
+
 </body>
 </html>
